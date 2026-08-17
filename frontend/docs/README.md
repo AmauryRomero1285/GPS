@@ -39,6 +39,6 @@ Se implementa un *Flujo Unidirecciional de Datos* mediante gestión de estado ce
     - Las bibliotecas de mapas en nativo (Google Maps/Apple Maps via *react-native-maps*).
     - Se eimplementa un *Adapter/Bridge Component*. Este componente encapsula la API específica de la plataforma, ofreciendo una interfaz de props unificada para el resto de la aplicación.
 
-- **Patrón Custom Hook (Abstracci´on de Lógica de Red)**
+- **Patrón Custom Hook (Abstraccion de Lógica de Red)**
     - Esparcir los Listeners de Websockets o las llamadas HTTP *fetch* dentro del ciclo de vida de los componentes (*useEffect*) genera código duplicando y fugas de memoria si la pantalla se desmonta.
     - Encapsular toda la integración del webSocket en un Custom Hook. Este hook gestiona automáticamente la apertura, cierre y reconexión del socket en segundo plano, devolviendo únicamente a la interfaz.
