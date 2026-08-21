@@ -131,6 +131,54 @@ router.post('/refresh', authController.refresh);
 
 /**
  * @swagger
+ * /auth/resend-verification:
+ *   post:
+ *     summary: Reenvía el correo de verificación (p.ej. si el token original expiró)
+ *     description: >
+ *       Busca la cuenta por correo; si existe y aún no está verificada, invalida
+ *       cualquier token de verificación previo, emite uno nuevo (válido por
+ *       EMAIL_VERIFICATION_EXPIRES_HOURS) y lo reenvía por correo.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: Se envió un nuevo correo de verificación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 message: { type: string }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     verificationToken:
+ *                       type: string
+ *                       description: 'Solo presente cuando NODE_ENV != production'
+ *       400:
+ *         description: Correo faltante, o la cuenta ya está verificada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       404:
+ *         description: No existe una cuenta con ese correo
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.post('/resend-verification', authController.resendVerification);
+
+/**
+ * @swagger
  * /auth/verify/{token}:
  *   get:
  *     summary: Verifica el correo de un usuario con el token enviado en el registro

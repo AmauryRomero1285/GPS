@@ -22,6 +22,20 @@ function signRefreshToken(user) {
   );
 }
 
+// Emite y envía un nuevo token de verificación, invalidando cualquier token
+// previo del usuario (así solo el más reciente enviado por correo es válido).
+async function issueVerificationToken(user) {
+  await userRepository.deleteVerificationTokensForUser(user.id);
+
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRES_HOURS * 60 * 60 * 1000);
+
+  await userRepository.saveVerificationToken(user.id, verificationToken, expiresAt);
+  await mailService.sendVerificationEmail(user, verificationToken);
+
+  return verificationToken;
+}
+
 class AuthService {
   // 1. Registro de Usuario
   async register({ email, username, password, name, lastname }) {
@@ -46,17 +60,7 @@ class AuthService {
       lastname,
     });
 
-    // Generar token para verificación de email
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRES_HOURS * 60 * 60 * 1000);
-
-    await userRepository.saveVerificationToken(
-      newUser.id,
-      verificationToken,
-      expiresAt
-    );
-
-    await mailService.sendVerificationEmail(newUser, verificationToken);
+    const verificationToken = await issueVerificationToken(newUser);
 
     return {
       user: newUser,
@@ -124,7 +128,29 @@ class AuthService {
     return user;
   }
 
-  // 4. Renovación del access token a partir de un refresh token
+  // 4. Reenvío del token de verificación (p.ej. si el original expiró)
+  async resendVerification(email) {
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      const error = new Error('No existe una cuenta con ese correo.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (user.is_verified) {
+      const error = new Error('Esta cuenta ya está verificada.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const verificationToken = await issueVerificationToken(user);
+
+    return {
+      ...(process.env.NODE_ENV !== 'production' ? { verificationToken } : {}),
+    };
+  }
+
+  // 5. Renovación del access token a partir de un refresh token
   async refresh(refreshToken) {
     let payload;
     try {
