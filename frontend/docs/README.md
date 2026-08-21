@@ -42,3 +42,50 @@ Se implementa un *Flujo Unidirecciional de Datos* mediante gestión de estado ce
 - **Patrón Custom Hook (Abstraccion de Lógica de Red)**
     - Esparcir los Listeners de Websockets o las llamadas HTTP *fetch* dentro del ciclo de vida de los componentes (*useEffect*) genera código duplicando y fugas de memoria si la pantalla se desmonta.
     - Encapsular toda la integración del webSocket en un Custom Hook. Este hook gestiona automáticamente la apertura, cierre y reconexión del socket en segundo plano, devolviendo únicamente a la interfaz.
+
+## Capas (de la pantalla al backend)
+
+```
+screens (app/, Expo Router = containers)
+        │
+components (src/components/, presentacionales, solo props)
+        │
+hooks (src/hooks/: useAuth, useDevices, useGpsSocket)
+        │
+facades (src/facades/: AuthFacade, DeviceFacade, TelemetryFacade)
+        │  — orquestan repos + SecureStore + store en un método simple
+repositories (src/repositories/: AuthRepository, DeviceRepository, TelemetryRepository)
+        │  — un método por endpoint del backend, sin lógica de negocio
+src/api/client.ts (fetch wrapper: base URL, header Bearer, 401 → refresh y reintenta una vez)
+        │
+backend REST / WebSocket
+```
+
+Esto refleja del lado del cliente la misma separación por capas que ya usa el backend
+(`repositories/sql/*.js` → `services/*.js` → `controllers/*.js`).
+
+## Configuración (variables de entorno)
+
+Expo expone al bundle solo las variables prefijadas `EXPO_PUBLIC_*` (se inlinean en build time).
+Crea un `.env` local (no versionado) en `frontend/`:
+
+```
+EXPO_PUBLIC_API_URL=http://192.168.1.50:4000/api
+```
+
+`localhost` no resuelve al backend desde un dispositivo físico ni desde la mayoría de emuladores:
+usa la IP de LAN de tu máquina, o `http://10.0.2.2:4000/api` específicamente en el emulador de Android.
+
+Para el mapa (`react-native-maps` en Android usa Google Maps), agrega tu API key en
+`app.json` → `expo.android.config.googleMaps.apiKey`.
+
+## Generar el .apk
+
+```
+pnpm add -g eas-cli   # una vez
+eas login
+eas build --platform android --profile preview   # perfil "preview" en eas.json ya está configurado como buildType "apk"
+```
+
+El perfil `preview` (ver `eas.json`) genera un `.apk` instalable directamente (distribución interna),
+a diferencia de `production`, que genera un `.aab` para subir a Play Store.
