@@ -1,6 +1,6 @@
 // db.mongo.js
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 mongoose.connection.on('connected', () => {
   console.log('MongoDB connected successfully');
