@@ -131,7 +131,12 @@ router.delete('/:id', deviceController.remove);
  * @swagger
  * /devices/{id}/shares:
  *   post:
- *     summary: Comparte un dispositivo propio con otro usuario
+ *     summary: Invita a otro usuario a acceder a un dispositivo propio (por correo)
+ *     description: >
+ *       No comparte de inmediato: crea una invitación con un token de un solo uso
+ *       (expira en SHARE_INVITE_EXPIRES_HOURS, por defecto 72h) y la envía por correo.
+ *       El destinatario debe iniciar sesión con esa cuenta y aceptarla en
+ *       POST /devices/shares/{token}/accept.
  *     tags: [Devices]
  *     security:
  *       - bearerAuth: []
@@ -148,11 +153,11 @@ router.delete('/:id', deviceController.remove);
  *             type: object
  *             required: [email]
  *             properties:
- *               email: { type: string, format: email, description: 'Correo del usuario con quien compartir' }
+ *               email: { type: string, format: email, description: 'Correo del usuario con quien compartir (debe tener cuenta registrada)' }
  *               permissionLevel: { type: string, enum: [READ_ONLY, FULL_ACCESS], default: READ_ONLY }
  *     responses:
  *       201:
- *         description: Dispositivo compartido correctamente
+ *         description: Invitación enviada por correo
  *         content:
  *           application/json:
  *             schema:
@@ -160,7 +165,7 @@ router.delete('/:id', deviceController.remove);
  *               properties:
  *                 status: { type: string, example: success }
  *                 message: { type: string }
- *                 data: { $ref: '#/components/schemas/DeviceShare' }
+ *                 data: { $ref: '#/components/schemas/ShareInvitation' }
  *       400:
  *         description: Datos inválidos
  *         content:
@@ -177,12 +182,60 @@ router.delete('/:id', deviceController.remove);
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
  *       409:
- *         description: El dispositivo ya está compartido con ese usuario
+ *         description: El dispositivo ya está compartido con ese usuario, o ya hay una invitación pendiente
  *         content:
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
  */
-router.post('/:id/shares', deviceController.share);
+router.post('/:id/shares', deviceController.invite);
+
+/**
+ * @swagger
+ * /devices/shares/{token}/accept:
+ *   post:
+ *     summary: Acepta una invitación de compartición de dispositivo
+ *     description: El usuario autenticado debe ser el mismo al que se invitó (mismo correo).
+ *     tags: [Devices]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Invitación aceptada, acceso concedido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 message: { type: string }
+ *                 data: { $ref: '#/components/schemas/DeviceShare' }
+ *       400:
+ *         description: La invitación ha expirado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       403:
+ *         description: La invitación no corresponde a la cuenta autenticada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       404:
+ *         description: Invitación no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       409:
+ *         description: La invitación ya fue aceptada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.post('/shares/:token/accept', deviceController.acceptInvitation);
 
 /**
  * @swagger

@@ -75,6 +75,19 @@ const definition = {
           username: { type: 'string' },
         },
       },
+      ShareInvitation: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          device_id: { type: 'string' },
+          invited_by_user_id: { type: 'string', format: 'uuid' },
+          invited_email: { type: 'string', format: 'email' },
+          permission_level: { type: 'string', enum: ['READ_ONLY', 'FULL_ACCESS'] },
+          expires_at: { type: 'string', format: 'date-time' },
+          accepted_at: { type: 'string', format: 'date-time', nullable: true },
+          created_at: { type: 'string', format: 'date-time' },
+        },
+      },
       SharedDevice: {
         type: 'object',
         properties: {

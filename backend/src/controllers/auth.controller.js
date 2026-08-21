@@ -48,6 +48,51 @@ class AuthController {
     }
   }
 
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'refreshToken es obligatorio.',
+        });
+      }
+
+      const result = await authService.refresh(refreshToken);
+
+      return res.status(200).json({
+        status: 'success',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resendVerification(req, res, next) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'El correo es obligatorio.',
+        });
+      }
+
+      const result = await authService.resendVerification(email);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Se envió un nuevo correo de verificación.',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async verifyEmail(req, res, next) {
     try {
       const { token } = req.params;

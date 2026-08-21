@@ -59,16 +59,32 @@ class DeviceController {
     }
   }
 
-  async share(req, res, next) {
+  async invite(req, res, next) {
     try {
       const { id } = req.params;
       const { email, permissionLevel } = req.body;
 
-      const share = await deviceShareService.share(req.user.id, id, { email, permissionLevel });
+      const invitation = await deviceShareService.invite(req.user.id, id, { email, permissionLevel });
 
       return res.status(201).json({
         status: 'success',
-        message: 'Dispositivo compartido correctamente.',
+        message: 'Invitación enviada por correo.',
+        data: invitation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async acceptInvitation(req, res, next) {
+    try {
+      const { token } = req.params;
+
+      const share = await deviceShareService.acceptInvitation(req.user.id, req.user.email, token);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Invitación aceptada, ahora tienes acceso al dispositivo.',
         data: share,
       });
     } catch (error) {

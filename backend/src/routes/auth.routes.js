@@ -37,7 +37,9 @@ const router = Router();
  *                   type: object
  *                   properties:
  *                     user: { $ref: '#/components/schemas/User' }
- *                     verificationToken: { type: string }
+ *                     verificationToken:
+ *                       type: string
+ *                       description: 'Solo presente cuando NODE_ENV != production; en producción el link de verificación se envía por correo.'
  *       400:
  *         description: Datos inválidos o correo ya registrado
  *         content:
@@ -50,7 +52,7 @@ router.post('/register', authController.register);
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Inicia sesión y obtiene un JWT
+ *     summary: Inicia sesión y obtiene un access token y un refresh token
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -75,15 +77,105 @@ router.post('/register', authController.register);
  *                 data:
  *                   type: object
  *                   properties:
- *                     token: { type: string }
+ *                     accessToken: { type: string, description: 'JWT de corta duración (JWT_EXPIRES_IN, default 8h)' }
+ *                     refreshToken: { type: string, description: 'JWT de larga duración (REFRESH_TOKEN_EXPIRES_IN, default 30d)' }
  *                     user: { $ref: '#/components/schemas/User' }
  *       401:
  *         description: Credenciales inválidas
  *         content:
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       403:
+ *         description: La cuenta aún no fue verificada/activada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
  */
 router.post('/login', authController.login);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: Renueva el access token a partir de un refresh token vigente
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [refreshToken]
+ *             properties:
+ *               refreshToken: { type: string }
+ *     responses:
+ *       200:
+ *         description: Nuevo access token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     accessToken: { type: string }
+ *       401:
+ *         description: Refresh token ausente, inválido, expirado, o usuario inactivo
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.post('/refresh', authController.refresh);
+
+/**
+ * @swagger
+ * /auth/resend-verification:
+ *   post:
+ *     summary: Reenvía el correo de verificación (p.ej. si el token original expiró)
+ *     description: >
+ *       Busca la cuenta por correo; si existe y aún no está verificada, invalida
+ *       cualquier token de verificación previo, emite uno nuevo (válido por
+ *       EMAIL_VERIFICATION_EXPIRES_HOURS) y lo reenvía por correo.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: Se envió un nuevo correo de verificación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 message: { type: string }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     verificationToken:
+ *                       type: string
+ *                       description: 'Solo presente cuando NODE_ENV != production'
+ *       400:
+ *         description: Correo faltante, o la cuenta ya está verificada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       404:
+ *         description: No existe una cuenta con ese correo
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.post('/resend-verification', authController.resendVerification);
 
 /**
  * @swagger

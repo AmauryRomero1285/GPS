@@ -51,6 +51,10 @@ class UserRepository {
     const { rows } = await db.query(query, [token]);
     return rows[0] || null;
   }
+
+  async deleteVerificationTokensForUser(userId) {
+    await db.query('DELETE FROM email_verifications WHERE user_id = $1', [userId]);
+  }
 }
 
 module.exports = new UserRepository();
