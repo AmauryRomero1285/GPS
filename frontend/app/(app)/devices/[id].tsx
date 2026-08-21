@@ -6,6 +6,7 @@ import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
+import { TextLink } from '@/components/TextLink';
 import { useAuth } from '@/hooks/useAuth';
 import { useDevices } from '@/hooks/useDevices';
 import { colors, radius, spacing, typography } from '@/theme';
@@ -117,6 +118,10 @@ export default function DeviceDetailScreen() {
           ) : null}
           {params.permissionLevel ? <Badge label={params.permissionLevel} tone="neutral" /> : null}
         </View>
+        <TextLink
+          label="Ver historial"
+          onPress={() => router.push({ pathname: '/devices/history', params: { deviceId: params.id, name: params.name ?? '' } })}
+        />
       </View>
 
       {isOwner ? (
