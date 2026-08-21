@@ -1,4 +1,5 @@
 const authService = require('../services/auth.service');
+const userRepository = require('../repositories/sql/user.repository');
 
 class AuthController {
   async register(req, res, next) {
@@ -41,6 +42,42 @@ class AuthController {
         status: 'success',
         message: 'Sesión iniciada correctamente.',
         data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async verifyEmail(req, res, next) {
+    try {
+      const { token } = req.params;
+
+      const user = await authService.verifyEmail(token);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Correo verificado correctamente.',
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async me(req, res, next) {
+    try {
+      const user = await userRepository.findById(req.user.id);
+
+      if (!user) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Usuario no encontrado.',
+        });
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        data: user,
       });
     } catch (error) {
       next(error);

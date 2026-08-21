@@ -90,6 +90,25 @@ class AuthService {
       },
     };
   }
+
+  // 3. Verificación de Correo
+  async verifyEmail(token) {
+    const verification = await userRepository.findVerificationToken(token);
+    if (!verification) {
+      const error = new Error('Token de verificación inválido.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (new Date(verification.expires_at) < new Date()) {
+      const error = new Error('El token de verificación ha expirado.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const user = await userRepository.verifyUser(verification.user_id);
+    return user;
+  }
 }
 
 module.exports = new AuthService();
