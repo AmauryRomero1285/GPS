@@ -1,23 +1,35 @@
 {
-  "name": "gps",
+  "name": "gps-mobile",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "main": "expo-router/entry",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "expo": "~57.0.15",
+    "expo-constants": "~57.0.13",
+    "expo-linking": "~57.0.7",
+    "expo-router": "~57.0.15",
+    "expo-secure-store": "~57.0.1",
+    "expo-splash-screen": "~57.0.7",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-maps": "1.29.0",
+    "react-native-safe-area-context": "5.9.1",
+    "react-native-screens": "4.27.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
+    "@types/react": "~19.2.2",
+    "babel-preset-expo": "~57.0.7",
     "oxlint": "^1.71.0",
-    "vite": "^8.1.1"
+    "typescript": "~6.0.3"
   }
 }
