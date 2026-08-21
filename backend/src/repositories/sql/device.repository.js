@@ -1,37 +1,26 @@
 const db = require('../../config/db.sql');
 
 class DeviceRepository {
-  async create({ userId, name, apiKeyHash }) {
+  async create({ id, ownerId, name }) {
     const query = `
-      INSERT INTO devices (user_id, name, api_key_hash)
+      INSERT INTO devices (id, owner_id, name)
       VALUES ($1, $2, $3)
-      RETURNING id, user_id, name, status, last_seen_at, created_at;
+      RETURNING id, owner_id, name, is_active, created_at;
     `;
-    const { rows } = await db.query(query, [userId, name, apiKeyHash]);
+    const { rows } = await db.query(query, [id, ownerId, name]);
     return rows[0];
   }
 
   async findById(id) {
-    const query = 'SELECT id, user_id, name, status, last_seen_at, created_at FROM devices WHERE id = $1';
+    const query = 'SELECT id, owner_id, name, is_active, created_at FROM devices WHERE id = $1';
     const { rows } = await db.query(query, [id]);
     return rows[0] || null;
   }
 
-  async findByApiKeyHash(apiKeyHash) {
-    const query = 'SELECT * FROM devices WHERE api_key_hash = $1';
-    const { rows } = await db.query(query, [apiKeyHash]);
-    return rows[0] || null;
-  }
-
-  async listByUser(userId) {
-    const query = 'SELECT id, user_id, name, status, last_seen_at, created_at FROM devices WHERE user_id = $1 ORDER BY created_at DESC';
-    const { rows } = await db.query(query, [userId]);
+  async listByOwner(ownerId) {
+    const query = 'SELECT id, owner_id, name, is_active, created_at FROM devices WHERE owner_id = $1 ORDER BY created_at DESC';
+    const { rows } = await db.query(query, [ownerId]);
     return rows;
-  }
-
-  async touchLastSeen(id) {
-    const query = 'UPDATE devices SET last_seen_at = CURRENT_TIMESTAMP WHERE id = $1';
-    await db.query(query, [id]);
   }
 
   async delete(id) {

@@ -5,7 +5,7 @@ const userRepository = require('../repositories/sql/user.repository');
 
 class AuthService {
   // 1. Registro de Usuario
-  async register({ email, username, password, name }) {
+  async register({ email, username, password, name, lastname }) {
     // Validar si el usuario o email ya existen
     const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
@@ -24,6 +24,7 @@ class AuthService {
       username,
       passwordHash,
       name,
+      lastname,
     });
 
     // Generar token para verificación de email (expira en 24h)
@@ -86,6 +87,7 @@ class AuthService {
         email: user.email,
         username: user.username,
         name: user.name,
+        lastname: user.lastname,
         isVerified: user.is_verified,
       },
     };

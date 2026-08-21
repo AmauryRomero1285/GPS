@@ -4,16 +4,16 @@ const userRepository = require('../repositories/sql/user.repository');
 class AuthController {
   async register(req, res, next) {
     try {
-      const { email, username, password, name } = req.body;
+      const { email, username, password, name, lastname } = req.body;
 
-      if (!email || !username || !password || !name) {
+      if (!email || !username || !password || !name || !lastname) {
         return res.status(400).json({
           status: 'error',
           message: 'Todos los campos son obligatorios.',
         });
       }
 
-      const result = await authService.register({ email, username, password, name });
+      const result = await authService.register({ email, username, password, name, lastname });
 
       return res.status(201).json({
         status: 'success',

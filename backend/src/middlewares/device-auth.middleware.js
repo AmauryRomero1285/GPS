@@ -2,21 +2,22 @@ const deviceService = require('../services/device.service');
 
 async function authenticateDevice(req, res, next) {
   try {
-    const apiKey = req.headers['x-api-key'];
+    const authHeader = req.headers.authorization || '';
+    const [scheme, token] = authHeader.split(' ');
 
-    if (!apiKey) {
+    if (scheme !== 'Bearer' || !token) {
       return res.status(401).json({
         status: 'error',
-        message: 'API key del dispositivo requerida.',
+        message: 'Token de dispositivo requerido.',
       });
     }
 
-    const device = await deviceService.authenticate(apiKey);
+    const device = await deviceService.authenticateToken(token);
 
     if (!device) {
       return res.status(401).json({
         status: 'error',
-        message: 'API key inválida o dispositivo inactivo.',
+        message: 'Token de dispositivo inválido, expirado o dispositivo inactivo.',
       });
     }
 

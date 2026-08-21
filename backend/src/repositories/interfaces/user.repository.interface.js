@@ -3,7 +3,7 @@
 //
 // findByEmail(email) -> Promise<User|null>
 // findById(id) -> Promise<User|null>
-// createUser({ email, username, passwordHash, name }) -> Promise<User>
+// createUser({ email, username, passwordHash, name, lastname }) -> Promise<User>
 // saveVerificationToken(userId, token, expiresAt) -> Promise<VerificationToken>
 // findVerificationToken(token) -> Promise<VerificationToken|null>
-// verifyUser(userId) -> Promise<{ id, is_verified }>
+// verifyUser(userId) -> Promise<{ id, is_verified, is_active }>

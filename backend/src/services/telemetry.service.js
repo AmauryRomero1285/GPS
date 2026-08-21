@@ -37,12 +37,12 @@ class TelemetryService {
   }
 
   async getLatest(userId, deviceId) {
-    await deviceService.assertOwnership(userId, deviceId);
+    await deviceService.assertReadAccess(userId, deviceId);
     return telemetryRepository.findLatestByDevice(deviceId);
   }
 
   async getHistory(userId, deviceId, { from, to, limit }) {
-    await deviceService.assertOwnership(userId, deviceId);
+    await deviceService.assertReadAccess(userId, deviceId);
     return telemetryRepository.findHistoryByDevice(deviceId, { from, to, limit });
   }
 }
