@@ -12,7 +12,7 @@ const router = Router();
  *     summary: Ingesta un nuevo punto de telemetría GPS (usado por el nodo ESP32)
  *     tags: [Telemetry]
  *     security:
- *       - apiKeyAuth: []
+ *       - deviceAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -35,7 +35,7 @@ const router = Router();
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
  *       401:
- *         description: API key ausente, inválida o dispositivo inactivo
+ *         description: Token de dispositivo ausente, inválido, expirado o dispositivo inactivo
  *         content:
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
@@ -54,7 +54,7 @@ router.post('/', authenticateDevice, telemetryController.ingest);
  *       - in: path
  *         name: deviceId
  *         required: true
- *         schema: { type: string, format: uuid }
+ *         schema: { type: string }
  *     responses:
  *       200:
  *         description: Último punto de telemetría
@@ -66,7 +66,7 @@ router.post('/', authenticateDevice, telemetryController.ingest);
  *                 status: { type: string, example: success }
  *                 data: { $ref: '#/components/schemas/TelemetryPoint' }
  *       403:
- *         description: El dispositivo no pertenece al usuario autenticado
+ *         description: El usuario autenticado no es dueño ni tiene el dispositivo compartido
  *         content:
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
@@ -90,7 +90,7 @@ router.get('/:deviceId/latest', authenticate, telemetryController.latest);
  *       - in: path
  *         name: deviceId
  *         required: true
- *         schema: { type: string, format: uuid }
+ *         schema: { type: string }
  *       - in: query
  *         name: from
  *         schema: { type: string, format: date-time }
@@ -115,7 +115,7 @@ router.get('/:deviceId/latest', authenticate, telemetryController.latest);
  *                   type: array
  *                   items: { $ref: '#/components/schemas/TelemetryPoint' }
  *       403:
- *         description: El dispositivo no pertenece al usuario autenticado
+ *         description: El usuario autenticado no es dueño ni tiene el dispositivo compartido
  *         content:
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }

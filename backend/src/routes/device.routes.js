@@ -20,12 +20,13 @@ router.use(authenticate);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [id, name]
  *             properties:
+ *               id: { type: string, description: 'MAC o id único del ESP32', example: 'AA:BB:CC:DD:EE:FF' }
  *               name: { type: string, example: ESP32-Rastreador-1 }
  *     responses:
  *       201:
- *         description: Dispositivo registrado. La apiKey solo se muestra en esta respuesta.
+ *         description: Dispositivo registrado. El deviceToken solo se muestra en esta respuesta.
  *         content:
  *           application/json:
  *             schema:
@@ -37,9 +38,14 @@ router.use(authenticate);
  *                   type: object
  *                   properties:
  *                     device: { $ref: '#/components/schemas/Device' }
- *                     apiKey: { type: string, description: 'Clave en texto plano, solo se retorna una vez' }
+ *                     deviceToken: { type: string, description: 'JWT de larga duración, solo se retorna una vez' }
  *       400:
  *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       409:
+ *         description: Ya existe un dispositivo con ese id
  *         content:
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
@@ -50,7 +56,7 @@ router.post('/', deviceController.register);
  * @swagger
  * /devices:
  *   get:
- *     summary: Lista los dispositivos del usuario autenticado
+ *     summary: Lista los dispositivos propios del usuario autenticado
  *     tags: [Devices]
  *     security:
  *       - bearerAuth: []
@@ -71,6 +77,29 @@ router.get('/', deviceController.list);
 
 /**
  * @swagger
+ * /devices/shared-with-me:
+ *   get:
+ *     summary: Lista los dispositivos que otros usuarios compartieron con el usuario autenticado
+ *     tags: [Devices]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de dispositivos compartidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 data:
+ *                   type: array
+ *                   items: { $ref: '#/components/schemas/SharedDevice' }
+ */
+router.get('/shared-with-me', deviceController.listSharedWithMe);
+
+/**
+ * @swagger
  * /devices/{id}:
  *   delete:
  *     summary: Elimina un dispositivo propio
@@ -81,7 +110,7 @@ router.get('/', deviceController.list);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string, format: uuid }
+ *         schema: { type: string }
  *     responses:
  *       200:
  *         description: Dispositivo eliminado correctamente
@@ -97,5 +126,128 @@ router.get('/', deviceController.list);
  *             schema: { $ref: '#/components/schemas/ErrorResponse' }
  */
 router.delete('/:id', deviceController.remove);
+
+/**
+ * @swagger
+ * /devices/{id}/shares:
+ *   post:
+ *     summary: Comparte un dispositivo propio con otro usuario
+ *     tags: [Devices]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email, description: 'Correo del usuario con quien compartir' }
+ *               permissionLevel: { type: string, enum: [READ_ONLY, FULL_ACCESS], default: READ_ONLY }
+ *     responses:
+ *       201:
+ *         description: Dispositivo compartido correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 message: { type: string }
+ *                 data: { $ref: '#/components/schemas/DeviceShare' }
+ *       400:
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       403:
+ *         description: El dispositivo no pertenece al usuario autenticado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       404:
+ *         description: Dispositivo o usuario destino no encontrado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       409:
+ *         description: El dispositivo ya está compartido con ese usuario
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.post('/:id/shares', deviceController.share);
+
+/**
+ * @swagger
+ * /devices/{id}/shares:
+ *   get:
+ *     summary: Lista con quién se compartió un dispositivo propio
+ *     tags: [Devices]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Lista de comparticiones del dispositivo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 data:
+ *                   type: array
+ *                   items: { $ref: '#/components/schemas/DeviceShare' }
+ *       403:
+ *         description: El dispositivo no pertenece al usuario autenticado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.get('/:id/shares', deviceController.listShares);
+
+/**
+ * @swagger
+ * /devices/{id}/shares/{shareId}:
+ *   delete:
+ *     summary: Revoca la compartición de un dispositivo propio
+ *     tags: [Devices]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *       - in: path
+ *         name: shareId
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Compartición revocada correctamente
+ *       403:
+ *         description: El dispositivo no pertenece al usuario autenticado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ *       404:
+ *         description: Registro de compartición no encontrado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ErrorResponse' }
+ */
+router.delete('/:id/shares/:shareId', deviceController.revokeShare);
 
 module.exports = router;
