@@ -9,35 +9,34 @@ import { TextLink } from '@/components/TextLink';
 import { useAuth } from '@/hooks/useAuth';
 import { colors, spacing, typography } from '@/theme';
 
-export default function LoginScreen() {
-  const { login } = useAuth();
+export default function RegisterScreen() {
+  const { register } = useAuth();
 
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [lastname, setLastname] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [needsVerification, setNeedsVerification] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
     setError(null);
-    setNeedsVerification(false);
 
-    if (!email || !password) {
-      setError('Ingresa tu correo y contraseña.');
+    if (!email || !username || !password || !name || !lastname) {
+      setError('Todos los campos son obligatorios.');
       return;
     }
 
     setLoading(true);
     try {
-      await login({ email, password });
-      // Stack.Protected en app/_layout.tsx reacciona solo al cambio de sesión.
+      const result = await register({ email, username, password, name, lastname });
+      router.replace({
+        pathname: '/verify-email',
+        params: { email, devToken: result.verificationToken ?? '' },
+      });
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-        setNeedsVerification(err.status === 403);
-      } else {
-        setError('No se pudo conectar con el servidor.');
-      }
+      setError(err instanceof ApiError ? err.message : 'No se pudo conectar con el servidor.');
     } finally {
       setLoading(false);
     }
@@ -46,7 +45,7 @@ export default function LoginScreen() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Text style={typography.title}>Iniciar sesión</Text>
+        <Text style={typography.title}>Crear cuenta</Text>
         <Text style={typography.caption}>GPS Tracker</Text>
       </View>
 
@@ -57,20 +56,20 @@ export default function LoginScreen() {
         keyboardType="email-address"
         autoComplete="email"
       />
+      <TextField label="Usuario" value={username} onChangeText={setUsername} autoComplete="username" />
+      <TextField label="Nombre" value={name} onChangeText={setName} autoCapitalize="words" />
+      <TextField label="Apellido" value={lastname} onChangeText={setLastname} autoCapitalize="words" />
       <TextField label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      {needsVerification ? (
-        <TextLink label="Reenviar correo de verificación" onPress={() => router.push('/resend-verification')} />
-      ) : null}
 
       <View style={styles.actions}>
-        <Button title="Ingresar" onPress={handleSubmit} loading={loading} />
+        <Button title="Registrarme" onPress={handleSubmit} loading={loading} />
       </View>
 
       <View style={styles.footer}>
-        <Text style={typography.caption}>¿No tienes cuenta?</Text>
-        <TextLink label="Regístrate" onPress={() => router.push('/register')} />
+        <Text style={typography.caption}>¿Ya tienes cuenta?</Text>
+        <TextLink label="Inicia sesión" onPress={() => router.back()} />
       </View>
     </Screen>
   );
