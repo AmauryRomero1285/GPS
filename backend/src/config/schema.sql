@@ -48,6 +48,19 @@ CREATE TABLE IF NOT EXISTS device_shares (
   CONSTRAINT unique_device_share UNIQUE (device_id, shared_with_user_id)
 );
 
+CREATE TABLE IF NOT EXISTS device_share_invitations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  device_id VARCHAR(100) NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+  invited_by_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  invited_email VARCHAR(255) NOT NULL,
+  permission_level permission_level_enum NOT NULL DEFAULT 'READ_ONLY',
+  token VARCHAR(255) NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  accepted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_email_verifications_user_id ON email_verifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_devices_owner_id ON devices(owner_id);
 CREATE INDEX IF NOT EXISTS idx_device_shares_shared_with_user_id ON device_shares(shared_with_user_id);
+CREATE INDEX IF NOT EXISTS idx_device_share_invitations_device_id ON device_share_invitations(device_id);
