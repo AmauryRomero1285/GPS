@@ -5,6 +5,12 @@ export interface ApiSuccess<T> {
   data: T;
 }
 
+// Algunos endpoints (p.ej. DELETE) responden sin campo "data" en absoluto.
+export interface ApiMessage {
+  status: 'success';
+  message: string;
+}
+
 export interface ApiErrorBody {
   status: 'error';
   message: string;
