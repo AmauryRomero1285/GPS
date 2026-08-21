@@ -4,6 +4,7 @@
     "slug": "gps-tracker",
     "version": "1.0.0",
     "scheme": "gpstracker",
+    "platforms": ["android", "ios"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -31,9 +32,6 @@
           "apiKey": ""
         }
       }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
