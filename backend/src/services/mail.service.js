@@ -17,7 +17,13 @@ async function sendMail({ to, subject, text, html }) {
     return;
   }
 
-  await transporter.sendMail({ from, to, subject, text, html });
+  // Un fallo de entrega (SMTP caído, credenciales revocadas, red) no debe tumbar
+  // la petición que lo disparó: el registro/reenvío ya persistió en la BD.
+  try {
+    await transporter.sendMail({ from, to, subject, text, html });
+  } catch (error) {
+    console.error(`[mail] Falló el envío a ${to}:`, error.message);
+  }
 }
 
 async function sendVerificationEmail(user, token) {
