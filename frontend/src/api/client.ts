@@ -6,6 +6,12 @@ import type { ApiSuccess } from '@/types/api';
 // usa la IP de LAN de tu máquina, o 10.0.2.2 en el emulador de Android.
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
+// El servidor monta el WebSocket en /ws sobre el mismo host:puerto HTTP
+// (ver backend/src/websocket/socket.server.js), no en una ruta bajo /api.
+export function getWebSocketUrl(): string {
+  return API_URL.replace(/^http/, 'ws').replace(/\/api\/?$/, '/ws');
+}
+
 export class ApiError extends Error {
   status: number;
 
