@@ -16,12 +16,13 @@ const router = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [email, username, password, name]
+ *             required: [email, username, password, name, lastname]
  *             properties:
  *               email: { type: string, format: email }
  *               username: { type: string }
  *               password: { type: string, format: password }
  *               name: { type: string }
+ *               lastname: { type: string }
  *     responses:
  *       201:
  *         description: Usuario registrado, pendiente de verificación de correo

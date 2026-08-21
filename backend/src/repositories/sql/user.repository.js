@@ -8,18 +8,18 @@ class UserRepository {
   }
 
   async findById(id) {
-    const query = 'SELECT id, email, username, name, is_verified, is_active, created_at FROM users WHERE id = $1';
+    const query = 'SELECT id, email, username, name, lastname, is_verified, is_active, created_at FROM users WHERE id = $1';
     const { rows } = await db.query(query, [id]);
     return rows[0] || null;
   }
 
-  async createUser({ email, username, passwordHash, name }) {
+  async createUser({ email, username, passwordHash, name, lastname }) {
     const query = `
-      INSERT INTO users (email, username, password_hash, name)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, email, username, name, is_verified, is_active, created_at;
+      INSERT INTO users (email, username, password_hash, name, lastname)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, email, username, name, lastname, is_verified, is_active, created_at;
     `;
-    const values = [email, username, passwordHash, name];
+    const values = [email, username, passwordHash, name, lastname];
     const { rows } = await db.query(query, values);
     return rows[0];
   }
@@ -35,7 +35,13 @@ class UserRepository {
   }
 
   async verifyUser(userId) {
-    const query = 'UPDATE users SET is_verified = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING id, is_verified';
+    // La verificación de correo activa la cuenta: is_active nace en FALSE.
+    const query = `
+      UPDATE users
+      SET is_verified = TRUE, is_active = TRUE, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, is_verified, is_active;
+    `;
     const { rows } = await db.query(query, [userId]);
     return rows[0];
   }
