@@ -13,6 +13,7 @@ export default function AppLayout() {
     >
       <Tabs.Screen name="index" options={{ title: 'Mapa' }} />
       <Tabs.Screen name="devices" options={{ title: 'Dispositivos' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Cuenta' }} />
     </Tabs>
   );
 }
