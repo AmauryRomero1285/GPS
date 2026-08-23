@@ -14,7 +14,9 @@ const { notFound, errorHandler } = require('./middlewares/error.middleware');
 
 const app = express();
 
-app.use(cors());
+// En producción solo se acepta el origen configurado en FRONTEND_URL; en
+// desarrollo se refleja cualquier origen para no fricción con distintos puertos locales.
+app.use(cors({ origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : true }));
 app.use(express.json());
 app.use(morgan('dev'));
 
