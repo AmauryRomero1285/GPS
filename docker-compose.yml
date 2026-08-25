@@ -1,0 +1,36 @@
+services:
+  api:
+    build: ./backend
+    container_name: locfar_backend_api
+    env_file:
+      - ./backend/.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: locfar_postgres_db
+    env_file:
+      - ./backend/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
