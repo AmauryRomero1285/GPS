@@ -24,7 +24,7 @@
       [
         "@rnmapbox/maps",
         {
-          "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
+          "RNMapboxMapsDownloadToken": "TU_TOKEN_SECRETO_REAL_AQUI"
         }
       ]
     ],
