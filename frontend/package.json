@@ -1,5 +1,5 @@
 {
-  "name": "gps-mobile",
+  "name": "locfar-mobile",
   "version": "1.0.0",
   "private": true,
   "main": "expo-router/entry",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
+    "@rnmapbox/maps": "^10.3.5",
     "expo": "~54.0.37",
     "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.14",

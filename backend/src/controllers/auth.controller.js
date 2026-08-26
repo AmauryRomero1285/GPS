@@ -128,6 +128,51 @@ class AuthController {
       next(error);
     }
   }
+
+  async forgotPassword(req, res, next) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'El correo electrónico es obligatorio.',
+        });
+      }
+
+      const result = await authService.forgotPassword(email);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Se ha enviado un enlace/código de recuperación a tu correo.',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req, res, next) {
+    try {
+      const { token, newPassword } = req.body;
+
+      if (!token || !newPassword) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'El código/token y la nueva contraseña son requeridos.',
+        });
+      }
+
+      const result = await authService.resetPassword({ token, newPassword });
+
+      return res.status(200).json({
+        status: 'success',
+        message: result.message,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
-module.exports = new AuthController();
+module.exports = new AuthController();

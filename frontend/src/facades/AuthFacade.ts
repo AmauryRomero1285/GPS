@@ -59,4 +59,15 @@ export const AuthFacade = {
     const { data } = await AuthRepository.verifyEmail(token);
     return data;
   },
+
+  async forgotPassword(email: string) {
+    const { data } = await AuthRepository.forgotPassword(email);
+    return data;
+  },
+
+  async resetPassword(input: { token: string; newPassword: string }) {
+    const { data } = await AuthRepository.resetPassword(input);
+    return data;
+  },
 };
+

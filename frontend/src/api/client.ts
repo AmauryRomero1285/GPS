@@ -4,7 +4,7 @@ import type { ApiSuccess } from '@/types/api';
 // EXPO_PUBLIC_* env vars are inlined at build time (see docs/README.md "Configuración").
 // localhost no resuelve al host de desarrollo desde un emulador/dispositivo físico:
 // usa la IP de LAN de tu máquina, o 10.0.2.2 en el emulador de Android.
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || '';
 
 // El servidor monta el WebSocket en /ws sobre el mismo host:puerto HTTP
 // (ver backend/src/websocket/socket.server.js), no en una ruta bajo /api.

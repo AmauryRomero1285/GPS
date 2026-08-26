@@ -225,4 +225,74 @@ router.get('/verify/:token', authController.verifyEmail);
  */
 router.get('/me', authenticate, authController.me);
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Solicita un enlace/código de restablecimiento de contraseña
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: Se envió el correo de recuperación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 message: { type: string }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     resetToken:
+ *                       type: string
+ *                       description: 'Solo presente cuando NODE_ENV != production'
+ *       400:
+ *         description: Correo faltante
+ *       404:
+ *         description: No existe una cuenta con ese correo
+ */
+router.post('/forgot-password', authController.forgotPassword);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Restablece la contraseña utilizando el token recibido
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, newPassword]
+ *             properties:
+ *               token: { type: string }
+ *               newPassword: { type: string, format: password }
+ *     responses:
+ *       200:
+ *         description: Contraseña restablecida correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 message: { type: string }
+ *       400:
+ *         description: Token inválido, expirado, ya utilizado o contraseña insegura
+ */
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;
+

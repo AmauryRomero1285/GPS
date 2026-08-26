@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { colors, minTouchTarget } from '@/theme';
+import { minTouchTarget, useTheme } from '@/theme';
 
 interface TextLinkProps {
   label: string;
@@ -7,6 +7,8 @@ interface TextLinkProps {
 }
 
 export function TextLink({ label, onPress }: TextLinkProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -14,7 +16,7 @@ export function TextLink({ label, onPress }: TextLinkProps) {
       style={({ pressed }) => [styles.base, pressed && styles.pressed]}
       hitSlop={8}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -26,11 +28,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.6,
   },
   label: {
-    color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });

@@ -1,10 +1,13 @@
 import { apiRequest } from '@/api/client';
 import type { ApiSuccess } from '@/types/api';
 import type {
+  ForgotPasswordResult,
   LoginInput,
   LoginResult,
   RegisterInput,
   RegisterResult,
+  ResetPasswordInput,
+  ResetPasswordResult,
   ResendVerificationResult,
   UserProfile,
   VerifyEmailResult,
@@ -52,7 +55,24 @@ export const AuthRepository = {
     });
   },
 
+  forgotPassword(email: string) {
+    return apiRequest<ApiSuccess<ForgotPasswordResult>>('/auth/forgot-password', {
+      method: 'POST',
+      body: { email },
+      auth: false,
+    });
+  },
+
+  resetPassword(input: ResetPasswordInput) {
+    return apiRequest<ApiSuccess<ResetPasswordResult>>('/auth/reset-password', {
+      method: 'POST',
+      body: input,
+      auth: false,
+    });
+  },
+
   me() {
     return apiRequest<ApiSuccess<UserProfile>>('/auth/me', { method: 'GET' });
   },
 };
+

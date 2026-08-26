@@ -7,11 +7,11 @@ import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
 import { TextLink } from '@/components/TextLink';
 import { useAuth } from '@/hooks/useAuth';
-import { radius, spacing, typography, useTheme } from '@/theme';
+import { spacing, typography, useTheme } from '@/theme';
 
-export default function ResendVerificationScreen() {
+export default function ForgotPasswordScreen() {
   const params = useLocalSearchParams<{ email?: string }>();
-  const { resendVerification } = useAuth();
+  const { forgotPassword } = useAuth();
   const { colors } = useTheme();
 
   const [email, setEmail] = useState(params.email ?? '');
@@ -31,9 +31,11 @@ export default function ResendVerificationScreen() {
 
     setLoading(true);
     try {
-      const result = await resendVerification(email.trim());
+      const result = await forgotPassword(email.trim());
       setSent(true);
-      setDevToken(result.verificationToken ?? null);
+      if (result.resetToken) {
+        setDevToken(result.resetToken);
+      }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'No se pudo conectar con el servidor.');
     } finally {
@@ -44,10 +46,9 @@ export default function ResendVerificationScreen() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Text style={[typography.title, { color: colors.text }]}>Validar o reenviar correo</Text>
+        <Text style={[typography.title, { color: colors.text }]}>Recuperar contraseña</Text>
         <Text style={[typography.caption, { color: colors.textMuted }]}>
-          ¿Te registraste pero no te llegó el correo de confirmación o tu código expiró?
-          Ingresa tu correo para recibir un nuevo enlace de activación.
+          Ingresa el correo electrónico asociado a tu cuenta para recibir un código de recuperación.
         </Text>
       </View>
 
@@ -67,9 +68,9 @@ export default function ResendVerificationScreen() {
       ) : null}
 
       {sent ? (
-        <View style={[styles.successBox, { backgroundColor: colors.surface, borderColor: colors.success }]}>
+        <View style={styles.successBox}>
           <Text style={[typography.caption, { color: colors.success }]}>
-            Se ha enviado un nuevo código de activación a tu correo electrónico.
+            Se ha enviado un código a tu correo electrónico.
           </Text>
           {devToken ? (
             <Text style={[typography.caption, { color: colors.textMuted, fontSize: 12 }]}>
@@ -81,28 +82,29 @@ export default function ResendVerificationScreen() {
 
       <View style={styles.actions}>
         <Button
-          title={sent ? 'Reenviar código de nuevo' : 'Reenviar correo de activación'}
+          title={sent ? 'Reenviar código' : 'Enviar código de recuperación'}
           onPress={handleSubmit}
           loading={loading}
         />
       </View>
 
-      <View style={styles.validateBox}>
-        <Text style={[typography.caption, { color: colors.textMuted }]}>¿Ya recibiste o tienes tu código de activación?</Text>
-        <Button
-          title="Validar cuenta con código"
-          variant="secondary"
-          onPress={() =>
-            router.push({
-              pathname: '/verify-email',
-              params: { email: email.trim(), devToken: devToken ?? '' },
-            })
-          }
-        />
-      </View>
+      {sent ? (
+        <View style={styles.footer}>
+          <Button
+            title="Ingresar código y nueva contraseña"
+            variant="secondary"
+            onPress={() =>
+              router.push({
+                pathname: '/reset-password',
+                params: { email, token: devToken ?? '' },
+              })
+            }
+          />
+        </View>
+      ) : null}
 
       <View style={styles.footer}>
-        <TextLink label="Volver a iniciar sesión" onPress={() => router.replace('/')} />
+        <TextLink label="¿Recordaste tu contraseña? Inicia sesión" onPress={() => router.replace('/')} />
       </View>
     </Screen>
   );
@@ -120,18 +122,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   successBox: {
-    borderWidth: 1,
-    borderRadius: radius.md,
-    padding: spacing.md,
     marginBottom: spacing.sm,
     gap: spacing.xs,
   },
-  validateBox: {
-    marginTop: spacing.lg,
-    gap: spacing.xs,
-  },
   footer: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     alignItems: 'center',
     gap: spacing.xs,
   },

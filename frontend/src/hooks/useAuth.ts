@@ -14,5 +14,7 @@ export function useAuth() {
     logout: AuthFacade.logout,
     resendVerification: AuthFacade.resendVerification,
     verifyEmail: AuthFacade.verifyEmail,
+    forgotPassword: AuthFacade.forgotPassword,
+    resetPassword: AuthFacade.resetPassword,
   };
 }

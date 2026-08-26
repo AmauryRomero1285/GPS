@@ -1,0 +1,11 @@
+# Ignorar el backend completamente
+../backend/
+backend/
+
+# Ignorar archivos compilados anteriores
+*.apk
+*.aab
+*.ipa
+
+# Ignorar dependencias (EAS las instala allá)
+node_modules/

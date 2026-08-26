@@ -55,3 +55,21 @@ export interface VerifyEmailResult {
   is_verified: boolean;
   is_active: boolean;
 }
+
+export interface ForgotPasswordInput {
+  email: string;
+}
+
+export interface ForgotPasswordResult {
+  resetToken?: string;
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResult {
+  message: string;
+}
+

@@ -1,26 +1,29 @@
 {
   "cli": {
-    "version": ">= 13.0.0",
-    "appVersionSource": "local"
+    "version": ">= 22.2.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": {
-        "buildType": "apk"
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://locfar.app/api",
+        "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
       }
     },
     "preview": {
       "distribution": "internal",
-      "android": {
-        "buildType": "apk"
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://locfar.app/api",
+        "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
       }
     },
     "production": {
       "autoIncrement": true,
-      "android": {
-        "buildType": "app-bundle"
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://locfar.app/api",
+        "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
       }
     }
   },

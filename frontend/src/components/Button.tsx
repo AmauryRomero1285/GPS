@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { colors, minTouchTarget, radius, spacing } from '@/theme';
+import { minTouchTarget, radius, spacing, useTheme } from '@/theme';
 
-type Variant = 'primary' | 'secondary' | 'danger';
+type Variant = 'primary' | 'secondary' | 'danger' | 'outline';
 
 interface ButtonProps {
   title: string;
@@ -12,7 +12,35 @@ interface ButtonProps {
 }
 
 export function Button({ title, onPress, variant = 'primary', disabled = false, loading = false }: ButtonProps) {
+  const { colors } = useTheme();
   const isDisabled = disabled || loading;
+
+  const dynamicStyles = {
+    primary: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    secondary: {
+      backgroundColor: colors.surfaceAlt,
+      borderColor: colors.border,
+    },
+    outline: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    danger: {
+      backgroundColor: colors.danger,
+      borderColor: colors.danger,
+    },
+  };
+
+  const dynamicLabelColors = {
+    primary: colors.primaryContrast,
+    secondary: colors.text,
+    outline: colors.text,
+    danger: '#FFFFFF',
+  };
 
   return (
     <Pressable
@@ -22,15 +50,16 @@ export function Button({ title, onPress, variant = 'primary', disabled = false, 
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
-        variantStyles[variant],
+        dynamicStyles[variant],
+        variant === 'outline' && styles.outlineBorder,
         isDisabled && styles.disabled,
         pressed && !isDisabled && styles.pressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.text} />
+        <ActivityIndicator color={dynamicLabelColors[variant]} />
       ) : (
-        <Text style={[styles.label, variant === 'secondary' && styles.labelSecondary]}>{title}</Text>
+        <Text style={[styles.label, { color: dynamicLabelColors[variant] }]}>{title}</Text>
       )}
     </Pressable>
   );
@@ -43,33 +72,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+    flexDirection: 'row',
+  },
+  outlineBorder: {
+    borderWidth: 1,
   },
   pressed: {
     opacity: 0.85,
+    transform: [{ scale: 0.985 }],
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  labelSecondary: {
-    color: colors.primary,
-  },
-});
-
-const variantStyles = StyleSheet.create({
-  primary: {
-    backgroundColor: colors.primary,
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  danger: {
-    backgroundColor: colors.danger,
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
 });

@@ -1,10 +1,8 @@
 {
   "expo": {
-    "name": "GPS Tracker",
-    "slug": "gps-tracker",
-    "version": "1.0.0",
-    "scheme": "gpstracker",
-    "platforms": ["android", "ios"],
+    "name": "locfar",
+    "slug": "gps-mobile",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -12,33 +10,28 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B1120"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.locfar.gpstracker"
+      "backgroundColor": "#09090B"
     },
     "android": {
-      "package": "com.locfar.gpstracker",
       "adaptiveIcon": {
-        "backgroundColor": "#0B1120",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#09090B",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false,
-      "config": {
-        "googleMaps": {
-          "apiKey": ""
-        }
-      }
+      "package": "com.locfar.app"
     },
     "plugins": [
-      "expo-router",
-      "expo-secure-store"
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsDownloadToken": ""
+        }
+      ]
     ],
-    "experiments": {
-      "typedRoutes": true
+    "extra": {
+      "eas": {
+        "projectId": "b3ffae7b-a078-4e50-94df-01f8cedc3ee5"
+      }
     }
   }
 }

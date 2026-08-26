@@ -36,9 +36,24 @@ async function issueVerificationToken(user) {
   return verificationToken;
 }
 
+function validatePasswordComplexity(password) {
+  if (!password || typeof password !== 'string') return false;
+  if (password.length <= 8) return false;
+  if (!/[A-Z]/.test(password)) return false;
+  if (!/[0-9]/.test(password)) return false;
+  if (!/[^A-Za-z0-9]/.test(password)) return false;
+  return true;
+}
+
 class AuthService {
   // 1. Registro de Usuario
   async register({ email, username, password, name, lastname }) {
+    if (!validatePasswordComplexity(password)) {
+      const error = new Error('La contraseña debe tener más de 8 caracteres, al menos una mayúscula, un número y un símbolo especial.');
+      error.statusCode = 400;
+      throw error;
+    }
+
     // Validar si el usuario o email ya existen
     const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
@@ -177,6 +192,66 @@ class AuthService {
     const accessToken = signAccessToken(user);
 
     return { accessToken };
+  }
+
+  // 6. Solicitud de recuperación de contraseña (Forgot Password)
+  async forgotPassword(email) {
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      const error = new Error('No existe una cuenta con ese correo electrónico.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await userRepository.deletePasswordResetTokensForUser(user.id);
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora de validez
+
+    await userRepository.savePasswordResetToken(user.id, resetToken, expiresAt);
+    await mailService.sendPasswordResetEmail(user, resetToken);
+
+    return {
+      ...(process.env.NODE_ENV !== 'production' ? { resetToken } : {}),
+    };
+  }
+
+  // 7. Restablecimiento de contraseña (Reset Password)
+  async resetPassword({ token, newPassword }) {
+    if (!validatePasswordComplexity(newPassword)) {
+      const error = new Error('La contraseña debe tener más de 8 caracteres, al menos una mayúscula, un número y un símbolo especial.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const resetRecord = await userRepository.findPasswordResetToken(token);
+    if (!resetRecord) {
+      const error = new Error('El código o token de recuperación es inválido.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (resetRecord.used_at) {
+      const error = new Error('Este código de recuperación ya ha sido utilizado.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (new Date(resetRecord.expires_at) < new Date()) {
+      const error = new Error('El código de recuperación ha expirado.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    await userRepository.updatePassword(resetRecord.user_id, passwordHash);
+    await userRepository.markPasswordResetTokenUsed(token);
+
+    return {
+      message: 'Contraseña actualizada correctamente.',
+    };
   }
 }
 
