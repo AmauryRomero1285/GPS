@@ -1,30 +1,19 @@
-// mail.js
-const nodemailer = require('nodemailer');
-require('dotenv').config({ quiet: true });
+// config/mail.js
+const { Resend } = require("resend");
+require("dotenv").config({ quiet: true });
 
-let transporter;
+let resendInstance;
 
-// Si no hay SMTP configurado (p.ej. en desarrollo local sin credenciales),
-// getTransporter() retorna null y el mail.service registra el correo en consola
-// en vez de fallar.
-function getTransporter() {
-  if (transporter !== undefined) return transporter;
+function getResendClient() {
+  if (resendInstance !== undefined) return resendInstance;
 
-  if (!process.env.SMTP_HOST) {
-    transporter = null;
-    return transporter;
+  if (!process.env.RESEND_API_KEY) {
+    resendInstance = null;
+    return resendInstance;
   }
 
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: process.env.SMTP_USER
-      ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD }
-      : undefined,
-  });
-
-  return transporter;
+  resendInstance = new Resend(process.env.RESEND_API_KEY);
+  return resendInstance;
 }
 
-module.exports = { getTransporter };
+module.exports = { getResendClient };
