@@ -8,21 +8,21 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://locfar.app",
+        "EXPO_PUBLIC_API_URL": "https://locfar.app/api",
         "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://locfar.app",
+        "EXPO_PUBLIC_API_URL": "https://locfar.app/api",
         "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://locfar.app",
+        "EXPO_PUBLIC_API_URL": "https://locfar.app/api",
         "RNMapboxMapsDownloadToken": "$RNMapboxMapsDownloadToken"
       }
     }
