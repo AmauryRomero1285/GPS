@@ -209,3 +209,20 @@
     });
   });
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      // Feedback visual inmediato en el botón
+      const originalText = downloadBtn.innerHTML;
+      downloadBtn.style.opacity = '0.8';
+      
+      // Restablecer estado después de 2 segundos
+      setTimeout(() => {
+        downloadBtn.style.opacity = '1';
+      }, 2000);
+    });
+  }
+});

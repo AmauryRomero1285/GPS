@@ -50,7 +50,7 @@
         <a class="brand" href="/" aria-label="locfar, inicio">
           <img
             src="./assets/android-icon-monochrome.png"
-            alt=""
+            alt="Logo locfar"
             width="48"
             height="48"
           />
@@ -74,17 +74,22 @@
             compartir acceso de forma simple y segura.
           </p>
           <div class="actions">
+            <!-- Apunta directo al endpoint de la API configurado en Express -->
             <a
+              id="downloadBtn"
               class="btn btn-primary"
               href="/download/locfar.apk"
               download="locfar.apk"
-              ><span class="material-symbols-outlined">download</span> Descargar
-              APK <span class="version">v1.0.1</span></a
+              aria-label="Descargar instalador locfar APK v1.0.1"
             >
+              <span class="material-symbols-outlined">download</span>
+              Descargar APK
+              <span class="version">v1.0.1</span>
+            </a>
           </div>
           <p class="download-note">
             <span class="material-symbols-outlined">verified_user</span> APK
-            disponible para Android
+            oficial disponible para Android
           </p>
         </section>
 
@@ -137,9 +142,9 @@
           <h2>Instálala en minutos</h2>
         </div>
         <ol>
-          <li><span>1</span> Descarga el APK.</li>
+          <li><span>1</span> Descarga el APK directo.</li>
           <li>
-            <span>2</span> Permite la instalación desde fuentes desconocidas.
+            <span>2</span> Permite la instalación desde aplicaciones desconocidas.
           </li>
           <li><span>3</span> Abre la app e inicia sesión.</li>
         </ol>
