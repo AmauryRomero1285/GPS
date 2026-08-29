@@ -1,0 +1,55 @@
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+  <button class="modal-close" type="button" aria-label="Cerrar" data-action="close">
+    <span class="material-symbols-outlined">close</span>
+  </button>
+  <h2 id="registerTitle">Crea tu cuenta</h2>
+  <p>Comienza a usar locfar hoy mismo.</p>
+  <form id="registerForm">
+    <div class="form-row">
+      <label for="name">Nombre</label>
+      <input id="name" name="name" type="text" autocomplete="name" required />
+    </div>
+    <div class="form-row">
+      <label for="lastname">Apellido</label>
+      <input id="lastname" name="lastname" type="text" autocomplete="family-name" required />
+    </div>
+    <div class="form-row">
+      <label for="username">Nombre de usuario</label>
+      <input id="username" name="username" type="text" autocomplete="username" required />
+    </div>
+    <div class="form-row">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+    </div>
+    <div class="form-row">
+      <label for="password">Contraseña</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        minlength="9"
+        pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{9,}"
+        title="Debe tener más de 8 caracteres, una mayúscula, un número y un símbolo."
+        required
+      />
+      <small class="field-help">Más de 8 caracteres, una mayúscula, un número y un símbolo.</small>
+      <div id="passwordStrength" class="password-strength" role="status" aria-live="polite">
+        <span class="strength-bar"></span>
+        <span class="strength-bar"></span>
+        <span class="strength-bar"></span>
+        <span class="strength-bar"></span>
+        <span class="strength-label">Seguridad: pendiente</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="confirmPassword">Confirmar contraseña</label>
+      <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required />
+      <small id="passwordMatch" class="field-help">Ingresa nuevamente tu contraseña.</small>
+    </div>
+    <button type="submit" class="btn btn-primary submit-btn">Crear cuenta</button>
+    <button id="openResendModal" class="text-link" type="button">
+      ¿No recibiste el correo de activación? Reenviarlo
+    </button>
+  </form>
+</div>
