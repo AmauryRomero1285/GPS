@@ -1,11 +1,11 @@
 const { getResendClient } = require("../config/mail");
 
-function frontendUrl() {
-  return process.env.FRONTEND_URL || "http://localhost:5173";
-}
-
+/**
+ * Retorna la URL base de la API.
+ * En producción se prioriza process.env.API_URL o la URL del dominio real.
+ */
 function apiUrl() {
-  return process.env.APP_URL || `https://locfar.app:${process.env.PORT || 4000}`;
+  return process.env.API_URL || "https://locfar.app";
 }
 
 async function sendMail({ to, subject, text, html }) {
@@ -32,7 +32,7 @@ async function sendMail({ to, subject, text, html }) {
 
     if (error) {
       console.error(`[mail] Falló el envío de Resend a ${to}:`, error.message);
-     } else {
+    } else {
       console.log(`[mail] Correo enviado con éxito a ${to}. ID:`, data?.id);
     }
   } catch (error) {
@@ -41,6 +41,7 @@ async function sendMail({ to, subject, text, html }) {
 }
 
 async function sendVerificationEmail(user, token) {
+  // La verificación apunta directamente al endpoint de la API
   const verifyUrl = `${apiUrl()}/api/auth/verify/${token}`;
   const logo = `${apiUrl()}/assets/icon.png`;
 
@@ -67,49 +68,22 @@ async function sendVerificationEmail(user, token) {
   });
 }
 
-async function sendDeviceShareInvitation({
-  toEmail,
-  deviceName,
-  inviterName,
-  permissionLevel,
-  token,
-}) {
-  const acceptUrl = `${frontendUrl()}/devices/shares/accept?token=${token}`;
-  const html = `
-    <div style="font-family:Inter, Arial, sans-serif;color:#0f172a">
-      <p><strong>${inviterName}</strong> ha compartido el dispositivo <strong>${deviceName}</strong> contigo.</p>
-      <p>Permiso: <strong>${permissionLevel}</strong></p>
-      <p>Puedes aceptar la invitación aquí:</p>
-      <p><a href="${acceptUrl}" style="color:#111827">${acceptUrl}</a></p>
-      <p style="color:#94a3b8;font-size:13px">Si no esperabas esta invitación, ignora este correo.</p>
-    </div>
-  `;
-
-  await sendMail({
-    to: toEmail,
-    subject: `${inviterName} compartió el dispositivo "${deviceName}" contigo`,
-    text: `${inviterName} ha compartido el dispositivo "${deviceName}" contigo. Acepta en: ${acceptUrl}`,
-    html,
-  });
-}
-
 async function sendPasswordResetEmail(user, token) {
-  const resetUrl = `${frontendUrl()}/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
+  // Para móviles/APK se destaca el token numérico/alfanumérico directamente en el correo
   const html = `
     <div style="font-family:Inter, Arial, sans-serif;color:#0f172a">
       <p>Hola <strong>${user.name}</strong>,</p>
-      <p>Has solicitado restablecer tu contraseña. Usa el siguiente código para continuar:</p>
-      <p style="font-size:20px;letter-spacing:4px;font-weight:700;background:#f3f4f6;padding:10px;border-radius:8px;display:inline-block">${token}</p>
-      <p>O haz clic en el enlace para restablecerla:</p>
-      <p><a href="${resetUrl}" style="color:#111827">Restablecer contraseña</a></p>
-      <p style="color:#94a3b8;font-size:13px">Este enlace expirará en 1 hora. Si no solicitaste este cambio, ignora este mensaje.</p>
+      <p>Has solicitado restablecer tu contraseña. Ingresa el siguiente código en tu aplicación para continuar:</p>
+      <p style="font-size:24px;letter-spacing:4px;font-weight:700;background:#f3f4f6;padding:12px 16px;border-radius:8px;display:inline-block;color:#111827">${token}</p>
+      <p style="color:#94a3b8;font-size:13px">Este código expirará pronto. Si no solicitaste este cambio, ignora este mensaje.</p>
+      <p style="margin-top:18px;color:#94a3b8;font-size:13px">— El equipo de locfar</p>
     </div>
   `;
 
   await sendMail({
     to: user.email,
     subject: "Restablece tu contraseña — locfar",
-    text: `Hola ${user.name}, usa el código ${token} para restablecer tu contraseña o visita: ${resetUrl}`,
+    text: `Hola ${user.name}, usa el código ${token} para restablecer tu contraseña en la aplicación locfar.`,
     html,
   });
 }
@@ -118,5 +92,4 @@ module.exports = {
   sendMail,
   sendVerificationEmail,
   sendPasswordResetEmail,
-  sendDeviceShareInvitation,
-};  
+};
