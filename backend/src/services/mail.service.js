@@ -5,7 +5,7 @@ function frontendUrl() {
 }
 
 function apiUrl() {
-  return process.env.APP_URL || `http://locfar.app:${process.env.PORT || 4000}`;
+  return process.env.APP_URL || `https://locfar.app:${process.env.PORT || 4000}`;
 }
 
 async function sendMail({ to, subject, text, html }) {
