@@ -1,0 +1,15 @@
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="resendTitle">
+  <button class="modal-close" type="button" aria-label="Cerrar" data-action="close">
+    <span class="material-symbols-outlined">close</span>
+  </button>
+  <h2 id="resendTitle">Reenviar activación</h2>
+  <p>Ingresa el correo con el que creaste tu cuenta.</p>
+  <form id="resendForm">
+    <div class="form-row">
+      <label for="resendEmail">Email</label>
+      <input id="resendEmail" name="email" type="email" autocomplete="email" required />
+    </div>
+    <button type="submit" class="btn btn-primary submit-btn">Reenviar correo</button>
+    <button id="backToRegister" class="text-link" type="button">Volver al registro</button>
+  </form>
+</div>
