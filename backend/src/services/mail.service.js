@@ -9,9 +9,9 @@ function apiUrl() {
   return process.env.API_URL || "https://locfar.app";
 }
 
-/**
- * Carga una plantilla HTML e inyecta las variables dinamicas {{key}}.
- */
+
+ // Carga una plantilla HTML e inyecta las variables dinamicas {{key}}.
+ 
 function renderTemplate(templateName, variables = {}) {
   const templatePath = path.join(__dirname, "..", "templates", `${templateName}.html`);
   let content = fs.readFileSync(templatePath, "utf8");
@@ -56,7 +56,7 @@ async function sendMail({ to, subject, text, html }) {
 
 async function sendVerificationEmail(user, token) {
   const verifyUrl = `${apiUrl()}/api/auth/verify/${token}`;
-  const logo = `${apiUrl()}/assets/icon.png`;
+  const logo = `${apiUrl()}/public/assets/icon.png`;
 
   const html = renderTemplate("email-verification", {
     userName: user.name,
@@ -73,7 +73,7 @@ async function sendVerificationEmail(user, token) {
 }
 
 async function sendPasswordResetEmail(user, token) {
-  const logo = `${apiUrl()}/assets/icon.png`;
+  const logo = `${apiUrl()}/public/assets/icon.png`;
 
   const html = renderTemplate("password-reset", {
     userName: user.name,

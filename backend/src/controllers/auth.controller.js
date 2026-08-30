@@ -1,5 +1,21 @@
 const authService = require('../services/auth.service');
 const userRepository = require('../repositories/sql/user.repository');
+const fs = require("fs");
+const path = require("path");
+
+// Carga de platillas HTML
+
+function renderTemplate(templateName, variables = {}){
+  const temaplatePath = path.join(__dirname, "..", "templates", `${templateName}.html`);
+  let content = fs.readFileSync(temaplatePath,"utf8");
+
+  Object.keys(variables).forEach((key)=>{
+    const regex = new RegExp(`{{${key}}`, "g");
+    content = content.replace(regex,variables[key] || "");
+  });
+return content;
+};
+
 
 class AuthController {
   async register(req, res, next) {
@@ -93,17 +109,21 @@ class AuthController {
     }
   }
 
-  async verifyEmail(req, res, next) {
+async verifyEmail(req, res, next) {
     try {
       const { token } = req.params;
 
+      // Realiza la lógica de verificación en la BD
       const user = await authService.verifyEmail(token);
 
-      return res.status(200).json({
-        status: 'success',
-        message: 'Correo verificado correctamente.',
-        data: user,
+      // Renderiza la plantilla HTML de confirmación
+      const html = renderTemplate("account-verified", {
+        userName: user.name,
       });
+
+      // Se responde enviando el HTML renderizado directamente al navegador
+      res.setHeader("Content-Type", "text/html");
+      return res.status(200).send(html);
     } catch (error) {
       next(error);
     }
@@ -175,4 +195,4 @@ class AuthController {
   }
 }
 
-module.exports = new AuthController();
+module.exports = new AuthController();
